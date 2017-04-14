@@ -3,29 +3,10 @@
 
 # In[34]:
 
-#from pyplink import PyPlink
 import numpy as np
 from numba import jit
 import multiprocessing
 import itertools
-
-#import pandas as pd
-#import itertools
-#import scipy.spatial.distance
-#import matplotlib.pyplot as plt
-#import seaborn as sns
-#import collections
-
-#import msprime
-#import allel
-
-#from plinkio import plinkfile
-
-#%matplotlib inline
-#sns.set_style('white')
-#from pylab import rcParams
-#from IPython.core.display import display, HTML
-#display(HTML("<style>.container { width:90% !important; }</style>"))
 
 
 # ### Simulate random haplotypes
@@ -67,23 +48,14 @@ def get_LL_numba(Q, H, code):
     return(LL)
 
 
-# # try multiprocessing
-
-# pool = multiprocessing.Pool(processes = n)
-# loci = 10
-# inputs = itertools.combinations(geno_array[:loci], 2)
-# pool_outputs = pool.map(get_r2, inputs, 10)
-# pool.close() # no more tasks
-# pool.join()
-# pool_outputs
-
 # In[75]:
 
 @jit(nopython=True)
 def do_multiEM(inputs):
     """"""
     H, Q, code = inputs # unpack the input
-    max_iter = 40
+    # currently these are hard-coded
+    max_iter = 100
     tol = 10e-6
     verbose = False 
         
@@ -163,52 +135,4 @@ def LDadmix(locus_1, locus_2, Q, tol = 1e-6, seed = 42):
     
     estimates = do_EM_numba(initial = initial_hap_freqs, Q = Q, code = geno_codes, max_iter = 100, tol = tol)
     return(estimates)
-
-
-# # Summary statistics
-
-# In[42]:
-
-@jit(nopython=True)
-def get_LD_from_haplotype_freqs(freqs):
-    """given a set of four haplotype frequencies x populations, returns r^2 and D in each pop"""
-    # TODO add D'
-    # 00, 01, 10, 11
-    pA = freqs[:,2] + freqs[:,3]
-    pB = freqs[:,1] + freqs[:,3]
-    pAB= freqs[:,3]
-    D = pAB - pA*pB
-    r2 = (D**2)/(pA*pB*(1.0-pA)*(1.0-pB))
-    return(r2, D)
-
-
-# # Wrapper
-
-# In[1]:
-
-def wrap_LDadmix(genotypes, Q):
-    #UNUSED
-    """Runs LDadmix for each pair of loci. 
-    Collects results in a data frame"""
-    
-    n_loci = len(genotypes)
-    n_pairs = (n_loci * (n_loci - 1)) / 2
-    n_pops = Q.shape[1]
-    # empty data frame
-    df = pd.DataFrame(columns=['locus_1', 'locus_2', 'pop', 'r2', 'D', 'H1', 'H2', 'H3', 'H4', 'LL', 'iters' ], index = range(n_pairs*n_pops))
-    
-    idx = 0
-    for l1 in range(n_loci):
-        for l2 in range(l1+1, n_loci):
-            H, LL, iters = LDadmix(genotypes[l1], genotypes[l2], Q=Q)
-            r2, D = get_LD_from_haplotype_freqs(H)
-            for pop in range(n_pops):
-                df.loc[idx] = pd.Series({'locus_1':l1, 'locus_2':l2, 'pop':pop, 'r2':r2[pop], 'D':D[pop], 
-                                         'LL':LL, 'iters':iters, 'H1':H[pop,0], 'H2':H[pop,1], 'H3':H[pop,2], 'H4':H[pop,3]})
-                idx +=1
-    
-    df[['locus_1', 'locus_2', 'pop', 'iters']] = df[['locus_1', 'locus_2', 'pop', 'iters']].astype(int)
-    return(df)
-    
-    
 
