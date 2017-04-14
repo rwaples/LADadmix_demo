@@ -1,7 +1,7 @@
 
 # coding: utf-8
 
-# In[34]:
+# In[1]:
 
 import numpy as np
 from numba import jit
@@ -11,7 +11,7 @@ import itertools
 
 # ### Simulate random haplotypes
 
-# In[37]:
+# In[2]:
 
 @jit(nopython=True)
 def get_rand_hap_freqs(n=2):
@@ -24,7 +24,7 @@ def get_rand_hap_freqs(n=2):
     return(res)
 
 
-# In[39]:
+# In[3]:
 
 @jit(nopython=True)
 def get_LL_numba(Q, H, code):
@@ -48,7 +48,7 @@ def get_LL_numba(Q, H, code):
     return(LL)
 
 
-# In[75]:
+# In[4]:
 
 @jit(nopython=True)
 def do_multiEM(inputs):
@@ -115,7 +115,7 @@ def do_multiEM(inputs):
     return(H, new_LL, i)
 
 
-# In[41]:
+# In[5]:
 
 @jit(nopython=True)
 def LDadmix(locus_1, locus_2, Q, tol = 1e-6, seed = 42):

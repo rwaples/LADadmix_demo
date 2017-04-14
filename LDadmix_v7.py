@@ -27,7 +27,6 @@ import LDadmix_v7_funcs as LDadmix
 def get_rand_hap_freqs(n=2):
     """returns an (n,4) dimensioned numpy array of random haplotype frequencies, 
     where n is the number of pops"""
-    # have to remove the list comprehension
     res = np.zeros((n, 4))
     for i in range(n):
         res[i] = np.diff(np.concatenate((np.array([0]), np.sort(np.random.rand(3)), np.array([1.0]))))
@@ -38,6 +37,7 @@ def get_rand_hap_freqs(n=2):
 
 @jit(nopython=True)
 def get_geno_codes(genos):
+    """turns each pair of genotypes into an integer from 0 to 8"""
     return(genos[0] + 3*genos[1])
 
 
@@ -58,8 +58,8 @@ def get_LD_from_haplotype_freqs(freqs):
     pApb = pA*pb
     papB = pa*pB
     papb = pa*pb
-    A = np.minimum(pApb, papB) # when D is positive 
-    B = np.minimum(pApB, papb) # when D is negative
+    A = np.minimum(pApb, papB) # Dmax when D is positive 
+    B = np.minimum(pApB, papb) # Dmax when D is negative
     Dmax = np.where(D >= 0, A, B)
     Dprime = D/Dmax
     r2 = (D**2)/(pA*pB*pa*pb)
@@ -77,14 +77,6 @@ def load_plinkfile(basepath):
         my_array[i] = el
     return(sample_list, locus_list, my_array.astype(np.int))
 
-
-# # Parse command line
-# Arguments:
-#     -Q : path to Q file
-#     -G : path to G file
-#     -P : number of threads
-#     -O : path to output file
-#     -L : max number of loci
 
 # In[7]:
 
