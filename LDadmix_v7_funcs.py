@@ -9,7 +9,11 @@ import multiprocessing
 import itertools
 
 
-# ### Simulate random haplotypes
+# ## TODO
+#     # deal with missing data here
+#     # deal with genotype values not in [0,1,2] here
+#     # deal with haplotype fixed in one population.
+#     # deal with random seed here?
 
 # In[2]:
 
@@ -55,9 +59,9 @@ def do_multiEM(inputs):
     """"""
     H, Q, code = inputs # unpack the input
     # currently these are hard-coded
-    max_iter = 100
-    tol = 10e-6
-    verbose = False 
+    max_iter = 300
+    tol = 10e-3
+    verbose = False # flag not used
         
     n_ind = len(Q)
     n_pops = Q.shape[1]
@@ -88,7 +92,7 @@ def do_multiEM(inputs):
         for ind in range(n_ind):
             for z in range(n_pops):
                 for hap in range(4):
-                    post[z, hap] += isum[ind, z, hap]/norm[ind]           
+                    post[z, hap] += isum[ind, z, hap]/norm[ind] #  can we use this estimate an 'effective sample size?'
                     
         # below doesn't currently work with numba, making the loop above for post necessary
         #post = 2*(isum / isum.sum((1,2))[:, np.newaxis,np.newaxis]).sum(0) 
@@ -113,26 +117,4 @@ def do_multiEM(inputs):
         old_LL = new_LL
     
     return(H, new_LL, i)
-
-
-# In[5]:
-
-@jit(nopython=True)
-def LDadmix(locus_1, locus_2, Q, tol = 1e-6, seed = 42):
-    assert(len(locus_1) == len(locus_2))
-    assert(len(locus_1) == len(Q))
-    
-    # deal with missing data here
-    # deal with genotype values not in [0,1,2] here
-    # deal with haplotype fixed in one population.
-    # deal with random seed here?
-    
-    geno_codes = locus_1 + 3*locus_2 # unique value for each possible pair of genotypes
-
-    n_pops = Q.shape[1]
-    # initialize with random haplotype frequencies
-    initial_hap_freqs = get_rand_hap_freqs(n=n_pops)
-    
-    estimates = do_EM_numba(initial = initial_hap_freqs, Q = Q, code = geno_codes, max_iter = 100, tol = tol)
-    return(estimates)
 
