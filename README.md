@@ -1,2 +1,2 @@
-# LADadmix_demo
+# LDadmix_demo
 first pass at a workable version LDadmix 
