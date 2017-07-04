@@ -6,6 +6,10 @@ Python 2.7
 
 packages: plinkio, numpy, numba, pandas, multiprocessing 
 
+### Installation
+git clone  https://github.com/rwaples/LDadmix_demo.git
+cd LDadmix_demo/
+
 
 ### Usage
 python ./LDadmix_v7.py --help
